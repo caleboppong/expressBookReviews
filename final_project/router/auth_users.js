@@ -5,12 +5,12 @@ const regd_users = express.Router();
 
 let users = [];
 
-const isValid = (username) => { // returns boolean
+const isValid = (username) => {
   const userswithsamename = users.filter((user) => user.username === username);
   return userswithsamename.length === 0;
 };
 
-const authenticatedUser = (username, password) => { // returns boolean
+const authenticatedUser = (username, password) => {
   const validusers = users.filter(
     (user) => user.username === username && user.password === password
   );
@@ -40,7 +40,7 @@ regd_users.post("/login", (req, res) => {
   return res.status(208).json({ message: "Invalid Login. Check username and password" });
 });
 
-// Add a book review
+// Add or modify a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const review = req.query.review;
@@ -58,6 +58,27 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
   return res.status(200).json({
     message: "Review successfully added/updated",
+    reviews: books[isbn].reviews
+  });
+});
+
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const isbn = req.params.isbn;
+  const username = req.session.authorization.username;
+
+  if (!books[isbn]) {
+    return res.status(404).json({ message: "Book not found" });
+  }
+
+  if (!books[isbn].reviews[username]) {
+    return res.status(404).json({ message: "No review found for this user" });
+  }
+
+  delete books[isbn].reviews[username];
+
+  return res.status(200).json({
+    message: "Review successfully deleted",
     reviews: books[isbn].reviews
   });
 });
