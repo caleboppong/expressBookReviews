@@ -60,6 +60,24 @@ public_users.get('/asyncauthor/:author', async function (req, res) {
     }
   });
 
+// Task 13 Added async Axios route for getting books by title
+public_users.get('/title/:title', function (req, res) {
+    const title = req.params.title.toLowerCase();
+  
+    const filteredBooks = Object.keys(books)
+      .filter(key => books[key].title.toLowerCase() === title)
+      .reduce((result, key) => {
+        result[key] = books[key];
+        return result;
+      }, {});
+  
+    if (Object.keys(filteredBooks).length > 0) {
+      return res.status(200).json(filteredBooks);
+    }
+  
+    return res.status(404).json({ message: "No books found for this title" });
+  });
+
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn', function (req, res) {
   const isbn = req.params.isbn;
